@@ -58,6 +58,7 @@ class Tape {
   }
 
   getCharAtPointer() {
+    if ( this.tape.length === 0 ) return "BLANK"
     const index = this.getPointer();
     return this.tape[index];
   }
@@ -119,7 +120,9 @@ class Tape {
   }
 }
 
-function calculate(inputTape, acceptingStates) {
+function calculate(inputTape, acceptingStates, printTape) {
+  printTape = printTape || false;
+
   let T = new Tape(inputTape);
   while (true) {
     let readData = T.readTape();
@@ -142,39 +145,45 @@ function calculate(inputTape, acceptingStates) {
 
       return false;
     }
-
-    T.printTape();
-    T.writeTape(transitionOutput.writeChar);
-    T.printTape();
-    T.moveTape(transitionOutput.direction);
-    T.setState(transitionOutput.outstate);
-    T.printTape();
-    //console.log("----------------")
+    if (printTape) {
+      T.printTape();
+      T.writeTape(transitionOutput.writeChar);
+      T.printTape();
+      T.moveTape(transitionOutput.direction);
+      T.setState(transitionOutput.outstate);
+      T.printTape();
+      console.log("----------------");
+    } else {
+      T.writeTape(transitionOutput.writeChar);
+      T.moveTape(transitionOutput.direction);
+      T.setState(transitionOutput.outstate);
+    }
   }
 }
 
-calculate("0011", [4])
-  ? console.log("Accepting!")
-  : console.log("Not accepting!");
+calculate("", [4], true) ? console.log("Accept") : console.log("Reject")
+//calculateRepeat()
 
-let acceptSet = new Set();
-let rejectSet = new Set();
+function calculateRepeat() {
+  let acceptSet = new Set();
+  let rejectSet = new Set();
 
-for (let i = 0; i < 100; i++) {
-  let testString = generateRandomString(
-    Math.floor(Math.random() * 10) + 1,
-    "01"
-  );
-  const result = calculate(testString, [4]);
-  if (result) acceptSet.add(testString);
-  else rejectSet.add(testString);
+  for (let i = 0; i < 1000; i++) {
+    let testString = generateRandomString(
+      Math.floor(Math.random() * 100) + 1,
+      "012"
+    );
+    const result = calculate(testString, [4]);
+    if (result) acceptSet.add(testString);
+    else rejectSet.add(testString);
+  }
+
+  const acceptSetAsArray = Array.from(acceptSet).sort();
+  const rejectSetAsArray = Array.from(rejectSet).sort();
+
+  console.log(rejectSetAsArray);
+  console.log(acceptSetAsArray);
 }
-
-const acceptSetAsArray = Array.from(acceptSet).sort()
-const rejectSetAsArray = Array.from(rejectSet).sort()
-
-console.log(rejectSetAsArray);
-console.log(acceptSetAsArray);
 
 function generateRandomString(length, characters) {
   let result = "";
