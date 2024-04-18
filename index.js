@@ -15,16 +15,9 @@ class Tape {
    * @param {char[]} tape -- array of chars, input string
    */
   setTape(tape) {
-    this.tape = []
-    for ( let i = 0 ; i < tape.length ; i++){
-        if ( tape[i] === '0'){
-            this.tape.push("zero")
-            continue
-        } else if (tape[i] === '1'){
-            this.tape.push("one")
-            continue
-        }
-        this.tape.push(tape[i])
+    this.tape = [];
+    for (let i = 0; i < tape.length; i++) {
+      this.tape.push(tape[i]);
     }
   }
 
@@ -37,6 +30,11 @@ class Tape {
       else printString = printString + " ";
     }
     console.log(printString);
+  }
+
+  printTapeSimple() {
+    const copy = this.tape;
+    console.log(copy.filter((item) => item !== "BLANK"));
   }
 
   getState() {
@@ -60,7 +58,7 @@ class Tape {
   }
 
   getCharAtPointer() {
-    const index = this.getPointer()
+    const index = this.getPointer();
     return this.tape[index];
   }
   setCharAtPointer(writeChar) {
@@ -84,7 +82,7 @@ class Tape {
   }
 
   moveTape(direction) {
-    const isLeft = direction === -1;
+    const isLeft = direction === "L";
     if (isLeft) {
       this.moveLeft();
     } else {
@@ -134,15 +132,15 @@ function calculate(inputTape, acceptingStates) {
     );
 
     if (transitionOutput === false) {
-        T.printTape();
-        let finalState = T.getState()
-        for (let i = 0 ; i < acceptingStates.length ; i++){
-            if ( acceptingStates[i] === finalState){
-                return true
-            }
+      //T.printTapeSimple();
+      let finalState = T.getState();
+      for (let i = 0; i < acceptingStates.length; i++) {
+        if (acceptingStates[i] === finalState) {
+          return true;
         }
+      }
 
-        return false
+      return false;
     }
 
     T.printTape();
@@ -151,8 +149,62 @@ function calculate(inputTape, acceptingStates) {
     T.moveTape(transitionOutput.direction);
     T.setState(transitionOutput.outstate);
     T.printTape();
-    console.log("----------------")
+    //console.log("----------------")
   }
 }
 
-calculate("011111111111111", [3]) ? console.log("Accepting") : console.log("Not accepting")
+calculate("0011", [4])
+  ? console.log("Accepting!")
+  : console.log("Not accepting!");
+
+let acceptSet = new Set();
+let rejectSet = new Set();
+
+for (let i = 0; i < 100; i++) {
+  let testString = generateRandomString(
+    Math.floor(Math.random() * 10) + 1,
+    "01"
+  );
+  const result = calculate(testString, [4]);
+  if (result) acceptSet.add(testString);
+  else rejectSet.add(testString);
+}
+
+const acceptSetAsArray = Array.from(acceptSet).sort()
+const rejectSetAsArray = Array.from(rejectSet).sort()
+
+console.log(rejectSetAsArray);
+console.log(acceptSetAsArray);
+
+function generateRandomString(length, characters) {
+  let result = "";
+
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    result += characters[randomIndex];
+  }
+
+  return result;
+}
+
+/*
+function testResult(randomString, TMresult) {
+  if (randomString.length % 2 === 1) {
+    if (TMresult === true) {
+      throw new Error(`FAILURE FOR STRING ${randomString}`);
+    } else {
+      return;
+    }
+  }
+
+  const firstHalfString = randomString.substring(0, randomString.length / 2);
+  const secondHalfString = randomString.substring(randomString.length / 2);
+
+  const testFindings =
+    firstHalfString === secondHalfString && firstHalfString.length !== 0;
+  if (testFindings !== TMresult) {
+    throw new Error(`FAILURE FOR STRING ${randomString}`);
+  }
+  console.log(`${randomString}, ${TMresult}`);
+}
+*/

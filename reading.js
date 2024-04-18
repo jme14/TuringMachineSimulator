@@ -5,13 +5,11 @@ const csvFileName = "transition.csv";
 
 const csvData = fs.readFileSync(csvFileName, "utf-8");
 
-const parsedData = Papa.parse(csvData, {
-  dynamicTyping: (field) => {
-    // Check if the field is enclosed in quotes
-    if (/^".*"$/.test(field)) return false; // Keep quoted fields as strings
-    return true; // Convert other fields to numbers
-  },
-});
+const parsedData = Papa.parse(csvData);
+parsedData.data.forEach((line) => {
+  line[0] = parseInt(line[0])
+  line[4] = parseInt(line[4])
+})
 
 
 class Table {
@@ -24,9 +22,9 @@ class Table {
     for ( let i = 0 ; i < table.length ; i++){
         if ( table[i][0] === state && table[i][1] === readChar){
             return {
-                outstate: table[i][2],
-                writeChar: table[i][3],
-                direction: table[i][4]
+                writeChar: table[i][2],
+                direction: table[i][3],
+                outstate: table[i][4]
             }
         }
     }
